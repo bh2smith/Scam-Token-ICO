@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "canonical-weth/contracts/WETH9.sol";
+import "./WETH9.sol";
 import "./ScamToken.sol";
 
 
@@ -17,6 +17,8 @@ contract ScamICO is Owned {
     bool public ended = false;
     uint public endTime = 0;
 
+    event  GoalReached(string msg, uint endtime);
+
     mapping(address => uint) public balanceSCM;
 
     constructor (WETH9 _tokenWETH, ScamToken _tokenSCM, uint  _investmentCap) public {
@@ -32,6 +34,7 @@ contract ScamICO is Owned {
         if (totalInvested >= maxInvestment) {
             ended = true;
             endTime = now;
+            emit GoalReached("Scam ICO finished", endTime);
         }
         balanceSCM[msg.sender] = balanceSCM[msg.sender].add(amount.mul(10));
     }
@@ -43,7 +46,7 @@ contract ScamICO is Owned {
     function withdrawSCM()
         public
     {
-        require(now > endTime + 2 minutes);
+        require(now > endTime + 2 seconds);
         uint amountOwed = balanceSCM[msg.sender];
         balanceSCM[msg.sender] = 0;
         tokenSCM.mint(msg.sender, amountOwed);
