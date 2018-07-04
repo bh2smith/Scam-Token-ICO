@@ -4,7 +4,7 @@ import "canonical-weth/contracts/WETH9.sol";
 import "./ScamToken.sol";
 
 
-contract ScamICO {
+contract ScamICO is Owned {
     using Math for *;
 
     ScamToken public tokenSCM;
@@ -20,13 +20,13 @@ contract ScamICO {
     mapping(address => uint) public balanceSCM;
 
     constructor (WETH9 _tokenWETH, ScamToken _tokenSCM, uint  _investmentCap) public {
+        owner = msg.sender;
         tokenSCM = _tokenSCM;
         tokenWETH = _tokenWETH;
         maxInvestment = _investmentCap;
     }
 
     function invest(uint amount) public {
-        // Is 'this' supposed to be this contract's address
         require(ended == false && tokenWETH.transferFrom(msg.sender, this, amount));
         totalInvested = totalInvested.add(amount);
         if (totalInvested >= maxInvestment) {
@@ -34,6 +34,10 @@ contract ScamICO {
             endTime = now;
         }
         balanceSCM[msg.sender] = balanceSCM[msg.sender].add(amount.mul(10));
+    }
+
+    function withdrawFunds() public onlyOwner() {
+        tokenWETH.transfer(msg.sender, tokenWETH.balanceOf(this));
     }
 
     function withdrawSCM()

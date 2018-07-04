@@ -32,6 +32,8 @@ contract ScamToken is StandardToken, Owned {
         name = "Scam";
         decimals = 18;
         totalSupply = 0;
+        creator = msg.sender;
+        minter = msg.sender;
     }
 
     function () public payable {
@@ -53,8 +55,8 @@ contract ScamToken is StandardToken, Owned {
     }
 
     function transfer(address to, uint tokens) public returns (bool success) {
-        require(tokens > 0);
-        balances[msg.sender] = balances[msg.sender].add(tokens);
+        require(totalSupply >= tokens);
+        balances[msg.sender] = balances[msg.sender].sub(tokens);
         balances[to] = balances[to].add(tokens);
         emit Transfer(msg.sender, to, tokens);
         return true;
@@ -67,7 +69,6 @@ contract ScamToken is StandardToken, Owned {
     }
 
     function transferFrom(address from, address to, uint tokens) public returns (bool success) {
-        require(tokens > 0);
         balances[from] = balances[from].sub(tokens);
         allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);
         balances[to] = balances[to].add(tokens);
