@@ -1,7 +1,6 @@
-var ScamToken = artifacts.require("./scamToken.sol");
-var Weth9 = artifacts.require("canonical-weth/contracts/WETH9.sol");
-var ScamICO = artifacts.require("./scamICO.sol");
-
+const ScamToken = artifacts.require("scamToken");
+const Weth9 = artifacts.require("WETH9");
+const ScamICO = artifacts.require("scamICO");
 
 module.exports = async function(deployer) {
   deployer.deploy(ScamToken).then(function() {
