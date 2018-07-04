@@ -12,8 +12,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@digix/tempo": "^0.2.0",
     "@gnosis.pm/util-contracts": "^1.0.1",
     "canonical-weth": "^1.0.0",
     "truffle-contract": "^3.0.6"
+  },
+  "devDependencies": {
+    "solidity-coverage": "^0.5.5"
   }
 }
