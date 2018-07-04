@@ -1,4 +1,5 @@
 const { assertRejects } = require('./utils.js')
+const { wait } = require('@digix/tempo')(web3)
 
 const ScamToken = artifacts.require('ScamToken');
 const Weth9 = artifacts.require('WETH9');
@@ -27,7 +28,13 @@ contract('ScamToken', accounts => {
         // console.log((await weth_token.allowance.call(a2, scam_ico.address)).toNumber());
         // console.log((await weth_token.allowance.call(scam_ico.address, a2)).toNumber());
         investTx =  await scam_ico.invest(3e18, { from: a2 });
-        console.log("Account 2 SCM balance: ", (await scam_ico.ended.call()).toString());
+
+        await assertRejects(scam_ico.withdrawSCM({ from: a2 }));
+        console.log("Waiting 3 seconds for the withdraw period to start")
+        await wait(3);
+        withdrawTx = await scam_ico.withdrawSCM({ from: a2 })
+        console.log("Account 2 SCM balance: ", (await scam_token.balanceOf.call(a2)).toString());
+
     })
 
 })
