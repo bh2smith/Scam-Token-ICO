@@ -46,7 +46,7 @@ contract ScamICO is Owned {
     function withdrawSCM()
         public
     {
-        require(now > endTime + 2 seconds);
+        require(ended && now > endTime + 2 seconds);
         uint amountOwed = balanceSCM[msg.sender];
         balanceSCM[msg.sender] = 0;
         tokenSCM.mint(msg.sender, amountOwed);

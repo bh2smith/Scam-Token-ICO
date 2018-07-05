@@ -10,7 +10,6 @@ contract('ScamToken', accounts => {
     var scam_token;
     var scam_ico;
     var weth_token;
-
     before(async () => {
         scam_token = await ScamToken.deployed();
         weth_token = await Weth9.deployed();
@@ -22,19 +21,55 @@ contract('ScamToken', accounts => {
 
     })
 
-    it('Send 5 WETH to account 2 and invest in scamICO', async () => {
-        depositTx = await weth_token.deposit({ from: a2, value: 5e18 });
-        approveTx = await weth_token.approve(scam_ico.address, 5e18, { from: a2 });
-        // console.log((await weth_token.allowance.call(a2, scam_ico.address)).toNumber());
-        // console.log((await weth_token.allowance.call(scam_ico.address, a2)).toNumber());
-        investTx =  await scam_ico.invest(3e18, { from: a2 });
+    // it('Test Total Supply', async () => {
+    //     await assert.equal(scam_token.totalSupply().call(),0);
+    //
+    // })
 
+    it('Pure Ultimate Test Case', async () => {
+        // Account2 exchanges 1000 ETH for WETH and approves the scam_ico.
+        await weth_token.deposit({ from: a2, value: 1000 });
+        await weth_token.approve(scam_ico.address, 1000, { from: a2 });
+
+        // Account2 invests 500 and tries to withdrawSCM (ICO isn't over)
+        await scam_ico.invest(500, { from: a2 });
         await assertRejects(scam_ico.withdrawSCM({ from: a2 }));
-        console.log("Waiting 3 seconds for the withdraw period to start")
+
+        // Account2 invests another 500 (and tried to withdraw)
+        await scam_ico.invest(500, { from: a2 });
+        await assertRejects(scam_ico.withdrawSCM({ from: a2 }));
+
+        // Wait for SCM to be claimable (i.e. > 2 seconds) and withdraw SCM
         await wait(3);
         withdrawTx = await scam_ico.withdrawSCM({ from: a2 })
-        console.log("Account 2 SCM balance: ", (await scam_token.balanceOf.call(a2)).toString());
+
+        // Creator takes the money and runs
+        prev_bal = (await weth_token.balanceOf.call(creator)).toNumber();
+        await scam_ico.withdrawFunds({ from: creator });
+        new_bal = (await weth_token.balanceOf.call(creator)).toNumber();
+        // Creator should have 1000 WETH after withdrawl
+        assert.equal(new_bal - prev_bal, 1000);
+
+        // Account2 transfers 500 SCM to creator
+        await scam_token.approve(creator, 2500, {from: a2})
+
+        assert.equal((await scam_token.allowance(a2, creator)).toNumber(), 2500);
+
+        await scam_token.transferFrom(a2, creator, 2500)
+
+        assert.equal((await scam_token.balanceOf.call(creator)).toNumber(), 2500);
+
+        // creator transfer some scam to Account3
+        await scam_token.transfer(a3, 1250);
+        assert.equal((await scam_token.balanceOf.call(a3)).toNumber(), 1250);
+
+        // Total Supply of scam token should be 10 times the WETH deposit
+        assert.equal((await scam_token.totalSupply()).toNumber(), (await weth_token.balanceOf.call(creator)).toNumber()*10)
+
+
 
     })
+
+
 
 })
