@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "./WETH9.sol";
+import "canonical-weth/contracts/WETH9.sol";
 import "./ScamToken.sol";
 
 
