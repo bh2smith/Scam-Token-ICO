@@ -64,9 +64,9 @@ contract('ScamToken', accounts => {
         assert.equal((await scam_token.balanceOf.call(a3)).toNumber(), 1250);
 
         // Total Supply of scam token should be 10 times the WETH deposit
-        assert.equal((await scam_token.totalSupply()).toNumber(), (await weth_token.balanceOf.call(creator)).toNumber()*10)
+        assert.equal((await scam_token.totalSupply()).toNumber(), (await weth_token.balanceOf.call(creator)).toNumber()*10);
 
-
+        await assertRejects(scam_token.sendTransaction({value:100}))
 
     })
 

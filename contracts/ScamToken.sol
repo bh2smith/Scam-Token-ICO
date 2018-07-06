@@ -36,6 +36,7 @@ contract ScamToken is StandardToken, Owned {
         minter = msg.sender;
     }
 
+    // Do not accept ETH!
     function () public payable {
         revert();
     }
