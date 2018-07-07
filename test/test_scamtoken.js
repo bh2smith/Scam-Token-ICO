@@ -18,13 +18,7 @@ contract('ScamToken', accounts => {
 
     it('No transfer of scam tokens until minted', async () => {
         await assertRejects(scam_token.transfer(creator, 5));
-
     })
-
-    // it('Test Total Supply', async () => {
-    //     await assert.equal(scam_token.totalSupply().call(),0);
-    //
-    // })
 
     it('Pure Ultimate Test Case', async () => {
         // Account2 exchanges 1000 ETH for WETH and approves the scam_ico.
@@ -39,14 +33,15 @@ contract('ScamToken', accounts => {
         await scam_ico.invest(500, { from: a2 });
         await assertRejects(scam_ico.withdrawSCM({ from: a2 }));
 
-        // Wait for SCM to be claimable (i.e. > 2 seconds) and withdraw SCM
-        await wait(3);
+        // Wait for SCM to be claimable (i.e. > 2 minutes) and withdraw SCM
+        await wait(121);
         withdrawTx = await scam_ico.withdrawSCM({ from: a2 })
 
         // Creator takes the money and runs
         prev_bal = (await weth_token.balanceOf.call(creator)).toNumber();
         await scam_ico.withdrawFunds({ from: creator });
         new_bal = (await weth_token.balanceOf.call(creator)).toNumber();
+
         // Creator should have 1000 WETH after withdrawl
         assert.equal(new_bal - prev_bal, 1000);
 
@@ -64,12 +59,31 @@ contract('ScamToken', accounts => {
         assert.equal((await scam_token.balanceOf.call(a3)).toNumber(), 1250);
 
         // Total Supply of scam token should be 10 times the WETH deposit
-        assert.equal((await scam_token.totalSupply()).toNumber(), (await weth_token.balanceOf.call(creator)).toNumber()*10);
+        var creator_weth = await weth_token.balanceOf.call(creator);
+        var scam_supply = await scam_token.totalSupply()
+        assert.equal(scam_supply.toNumber(), creator_weth.toNumber()*10);
 
         await assertRejects(scam_token.sendTransaction({value:100}))
 
     })
 
+    it('Estimate gas costs', async () => {
+        // gasPrice = await web3.eth.getGasPrice;
+        var gasPrice = web3.eth.gasPrice;
+        console.log(gasPrice.toString())
 
+        ScamICO.deployed().then(function(instance) {
+
+            // Use the keyword 'estimateGas' after the function name to get the gas estimation for this particular function
+            return instance.withdrawSCM.estimateGas();
+
+        }).then(function(result) {
+            var gas = Number(result);
+
+            console.log("gas estimation = " + gas + " units");
+            console.log("gas cost estimation = " + (gas * gasPrice) + " wei");
+            console.log("gas cost estimation = " + ScamICO.web3.fromWei((gas * gasPrice), 'ether') + " ether");
+        });
+    })
 
 })
