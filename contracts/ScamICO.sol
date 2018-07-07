@@ -11,21 +11,27 @@ contract ScamICO is Owned {
     WETH9 public tokenWETH;
 
     uint public maxInvestment;
+    bool public ended;
+    uint public endTime;
+    uint public waitAfterEndSeconds;
+    uint public totalInvested;
 
-    // Should these be initiated in constructor?
-    uint256 public totalInvested = 0;
-    bool public ended = false;
-    uint public endTime = 0;
-
-    event  GoalReached(string msg, uint endtime);
+    event GoalReached(string msg, uint endTime);
+    event ScamWithdraw(uint amount);
 
     mapping(address => uint) public balanceSCM;
 
-    constructor (WETH9 _tokenWETH, ScamToken _tokenSCM, uint  _investmentCap) public {
+    constructor (
+        WETH9 _tokenWETH,
+        ScamToken _tokenSCM,
+        uint  _investmentCap,
+        uint _waitAfterEndSeconds
+        ) public {
         owner = msg.sender;
         tokenSCM = _tokenSCM;
         tokenWETH = _tokenWETH;
         maxInvestment = _investmentCap;
+        waitAfterEndSeconds = _waitAfterEndSeconds;
     }
 
     function invest(uint amount) public {
@@ -34,21 +40,21 @@ contract ScamICO is Owned {
         if (totalInvested >= maxInvestment) {
             ended = true;
             endTime = now;
-            emit GoalReached("Scam ICO finished", endTime);
+            emit GoalReached("Scam ICO finished at", endTime);
         }
         balanceSCM[msg.sender] = balanceSCM[msg.sender].add(amount.mul(10));
     }
 
     function withdrawFunds() public onlyOwner() {
         tokenWETH.transfer(msg.sender, tokenWETH.balanceOf(this));
+        /* suicide(msg.sender); */
     }
 
-    function withdrawSCM()
-        public
-    {
-        require(ended && now > endTime + 2 seconds);
+    function withdrawSCM() public {
+        require(ended && now > endTime + waitAfterEndSeconds);
         uint amountOwed = balanceSCM[msg.sender];
         balanceSCM[msg.sender] = 0;
         tokenSCM.mint(msg.sender, amountOwed);
+        emit ScamWithdraw(amountOwed);
     }
 }
