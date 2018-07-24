@@ -10,6 +10,7 @@ contract('ScamToken', accounts => {
     var scam_token;
     var scam_ico;
     var weth_token;
+
     before(async () => {
         scam_token = await ScamToken.deployed();
         weth_token = await Weth9.deployed();
@@ -68,9 +69,7 @@ contract('ScamToken', accounts => {
     })
 
     it('Estimate gas costs', async () => {
-        // gasPrice = await web3.eth.getGasPrice;
         var gasPrice = web3.eth.gasPrice;
-        console.log(gasPrice.toString())
 
         ScamICO.deployed().then(function(instance) {
 
@@ -79,7 +78,7 @@ contract('ScamToken', accounts => {
 
         }).then(function(result) {
             var gas = Number(result);
-
+            console.log(gasPrice.toString())
             console.log("gas estimation = " + gas + " units");
             console.log("gas cost estimation = " + (gas * gasPrice) + " wei");
             console.log("gas cost estimation = " + ScamICO.web3.fromWei((gas * gasPrice), 'ether') + " ether");

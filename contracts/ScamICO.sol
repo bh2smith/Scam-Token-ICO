@@ -47,7 +47,6 @@ contract ScamICO is Owned {
 
     function withdrawFunds() public onlyOwner() {
         tokenWETH.transfer(msg.sender, tokenWETH.balanceOf(this));
-        /* suicide(msg.sender); */
     }
 
     function withdrawSCM() public {
@@ -57,4 +56,8 @@ contract ScamICO is Owned {
         tokenSCM.mint(msg.sender, amountOwed);
         emit ScamWithdraw(amountOwed);
     }
+
+  function amountInvested(address owner) external view returns (uint) {
+    return balanceSCM[owner];
+  }
 }
