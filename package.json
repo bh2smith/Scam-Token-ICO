@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "dev": "lite-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -15,7 +16,9 @@
     "@digix/tempo": "^0.2.0",
     "@gnosis.pm/util-contracts": "^1.0.1",
     "canonical-weth": "^1.0.0",
-    "truffle-contract": "^3.0.6"
+    "lite-server": "^2.4.0",
+    "truffle-contract": "^3.0.6",
+    "truffle-hdwallet-provider": "0.0.5"
   },
   "devDependencies": {
     "solidity-coverage": "^0.5.5"
